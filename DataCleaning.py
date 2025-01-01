@@ -997,3 +997,65 @@ plt.xlabel('Pack Size (g)')
 plt.ylabel('Count')
 plt.xticks(rotation=45)
 plt.show()
+
+# Overall Pack Size Distribution
+plt.figure(figsize=(8, 6))
+sns.histplot(merged_data['PACK_SIZE'], bins=20, kde=True, color='blue')
+plt.title('Overall Pack Size Distribution')
+plt.xlabel('Pack Size (grams)')
+plt.ylabel('Frequency')
+plt.show()
+
+print(overall_avg_pack_size)
+
+# Average Pack Size by Premium Status
+plt.figure(figsize=(8, 6))
+avg_pack_by_premium.plot(kind='bar', color='green')
+plt.title('Average Pack Size by Premium Status')
+plt.xlabel('Premium Customer Status')
+plt.ylabel('Average Pack Size (grams)')
+plt.show()
+
+print(avg_pack_by_premium)
+
+# Average Pack Size by Lifestage
+plt.figure(figsize=(8, 6))
+avg_pack_by_lifestage.plot(kind='bar', color='orange')
+plt.title('Average Pack Size by Lifestage')
+plt.xlabel('Lifestage')
+plt.ylabel('Average Pack Size (grams)')
+plt.show()
+
+print(avg_pack_by_lifestage)
+
+# Brand Preference by Premium Status
+plt.figure(figsize=(10, 6))
+brand_pref_by_premium.T.plot(kind='bar', stacked=True, figsize=(10, 6), colormap='tab20')
+plt.title('Brand Preference by Premium Status')
+plt.xlabel('BRAND_NAME')
+plt.ylabel('Percentage')
+plt.legend(title='Premium Status')
+plt.show()
+
+print(brand_pref_by_premium)
+
+# Brand Preference by Lifestage
+plt.figure(figsize=(10, 6))
+BRAND_NAME_pref_by_lifestage.T.plot(kind='bar', stacked=True, figsize=(10, 6), colormap='tab20')
+plt.title('Brand Preference by Lifestage')
+plt.xlabel('BRAND_NAME')
+plt.ylabel('Percentage')
+plt.legend(title='Lifestage')
+plt.show()
+
+print(brand_pref_by_lifestage)
+
+# Overall Brand Preference
+plt.figure(figsize=(10, 6))
+overall_avg_BRAND_NAME_pref.plot(kind='bar', color='purple')
+plt.title('Overall Brand Preference')
+plt.xlabel('BRAND_NAME')
+plt.ylabel('Percentage')
+plt.show()
+
+overall_avg_brand_pref
