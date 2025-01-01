@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from scipy.stats import zscore
+from scipy.stats import ttest_ind
 
 # Read data
 transaction_data = pd.read_excel(r"/content/QVI_transaction_data.xlsx")
@@ -13,7 +15,7 @@ transaction_data.info()
 # Convert DATE column to datetime
 transaction_data['DATE'] = pd.to_datetime(transaction_data['DATE'], origin='1899-12-30', unit='D')
 
-# Check for missing values and duplicates 
+# Check for missing values and duplicates
 transaction_data_missing = transaction_data.isnull().sum()
 transaction_data_duplicates = transaction_data.duplicated().sum()
 
@@ -21,7 +23,7 @@ transaction_data_duplicates = transaction_data.duplicated().sum()
 products = transaction_data['PROD_NAME'].unique()
 
 # Display the first 10 unique products
-print(prod_name_summary)
+print(products)
 
 product_series = pd.Series(products)
 
@@ -117,6 +119,54 @@ merged_data['PREMIUM_CUSTOMER'] = merged_data['PREMIUM_CUSTOMER'].str.strip().st
 merged_data['LIFESTAGE'] = merged_data['LIFESTAGE'].str.strip().str.upper()
 
 
+# Filter for Budget Young Singles/Couples
+budget_young = merged_data[
+    (merged_data['PREMIUM_CUSTOMER'] == 'BUDGET') &
+    (merged_data['LIFESTAGE'] == 'YOUNG SINGLES/COUPLES')
+]
+
+# Brand preference
+brand_preference = budget_young['BRAND_NAME'].value_counts()
+print("Brand Preference for Budget Young Singles/Couples:")
+print(brand_preference)
+
+# Pack size preference
+pack_size_preference = budget_young['PACK_SIZE'].value_counts()
+print("Pack Size Preference for Budget Young Singles/Couples:")
+print(pack_size_preference)
+
+print("Brand Preference for Budget Young Singles/Couples:")
+print(brand_preference)
+
+print("Pack Size Preference for Budget Young Singles/Couples:")
+print(pack_size_preference)
+
+# Visualization
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x=brand_preference.index, y=brand_preference.values)
+plt.title('Brand Preference for Budget Young Singles/Couples')
+plt.xlabel('Brand')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Pack size preference analysis
+pack_size_preference = budget_young['PACK_SIZE'].value_counts()
+print("Pack Size Preference for Budget Young Singles/Couples:")
+print(pack_size_preference)
+
+# Visualize pack size preferences
+plt.figure(figsize=(10, 6))
+sns.barplot(x=pack_size_preference.index, y=pack_size_preference.values)
+plt.title('Pack Size Preference for Budget Young Singles/Couples')
+plt.xlabel('Pack Size (g)')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
 # Filter for Mainstream Young Singles/Couples
 mainstream_young = merged_data[
     (merged_data['PREMIUM_CUSTOMER'] == 'MAINSTREAM') &
@@ -160,6 +210,789 @@ print(pack_size_preference)
 plt.figure(figsize=(10, 6))
 sns.barplot(x=pack_size_preference.index, y=pack_size_preference.values)
 plt.title('Pack Size Preference for Mainstream Young Singles/Couples')
+plt.xlabel('Pack Size (g)')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Filter for Premium Young Singles/Couples
+premium_young = merged_data[
+    (merged_data['PREMIUM_CUSTOMER'] == 'PREMIUM') &
+    (merged_data['LIFESTAGE'] == 'YOUNG SINGLES/COUPLES')
+]
+
+# Brand preference
+brand_preference = premium_young['BRAND_NAME'].value_counts()
+print("Brand Preference for premium Young Singles/Couples:")
+print(brand_preference)
+
+# Pack size preference
+pack_size_preference = premium_young['PACK_SIZE'].value_counts()
+print("Pack Size Preference for Premium Young Singles/Couples:")
+print(pack_size_preference)
+
+print("Brand Preference for Premium Young Singles/Couples:")
+print(brand_preference)
+
+print("Pack Size Preference for Premium Young Singles/Couples:")
+print(pack_size_preference)
+
+# Visualization
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x=brand_preference.index, y=brand_preference.values)
+plt.title('Brand Preference for Premium Young Singles/Couples')
+plt.xlabel('Brand')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Pack size preference analysis
+pack_size_preference = premium_young['PACK_SIZE'].value_counts()
+print("Pack Size Preference for Premium Young Singles/Couples:")
+print(pack_size_preference)
+
+# Visualize pack size preferences
+plt.figure(figsize=(10, 6))
+sns.barplot(x=pack_size_preference.index, y=pack_size_preference.values)
+plt.title('Pack Size Preference for Premium Young Singles/Couples')
+plt.xlabel('Pack Size (g)')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Filter for Budget Young Families
+budget_youngfam = merged_data[
+    (merged_data['PREMIUM_CUSTOMER'] == 'BUDGET') &
+    (merged_data['LIFESTAGE'] == 'YOUNG FAMILIES')
+]
+
+# Brand preference
+brand_preference = budget_youngfam['BRAND_NAME'].value_counts()
+print("Brand Preference for Budget Young Families:")
+print(brand_preference)
+
+print("Brand Preference for Budget Young Families:")
+print(brand_preference)
+
+# Visualization
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x=brand_preference.index, y=brand_preference.values)
+plt.title('Brand Preference for Budget Young Families')
+plt.xlabel('Brand')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Filter for Budget Young Families
+budget_youngfam = merged_data[
+    (merged_data['PREMIUM_CUSTOMER'] == 'BUDGET') &
+    (merged_data['LIFESTAGE'] == 'YOUNG FAMILIES')
+]
+
+# Brand preference
+brand_preference = budget_youngfam['BRAND_NAME'].value_counts()
+print("Brand Preference for Budget Young Families:")
+print(brand_preference)
+
+print("Brand Preference for Budget Young Families:")
+print(brand_preference)
+
+# Visualization
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x=brand_preference.index, y=brand_preference.values)
+plt.title('Brand Preference for Budget Young Families')
+plt.xlabel('Brand')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Filter for Mainstream Young Families
+mainstream_youngfam = merged_data[
+    (merged_data['PREMIUM_CUSTOMER'] == 'MAINSTREAM') &
+    (merged_data['LIFESTAGE'] == 'YOUNG FAMILIES')
+]
+
+# Brand preference
+brand_preference = mainstream_youngfam['BRAND_NAME'].value_counts()
+print("Brand Preference for Mainstream Young Families:")
+print(brand_preference)
+
+print("Brand Preference for Mainstream Young Families:")
+print(brand_preference)
+
+# Visualization
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x=brand_preference.index, y=brand_preference.values)
+plt.title('Brand Preference for Mainstream Young Families')
+plt.xlabel('Brand')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Pack size preference analysis
+pack_size_preference = mainstream_youngfam['PACK_SIZE'].value_counts()
+print("Pack Size Preference for Mainstream Young Families:")
+print(pack_size_preference)
+
+# Visualize pack size preferences
+plt.figure(figsize=(10, 6))
+sns.barplot(x=pack_size_preference.index, y=pack_size_preference.values)
+plt.title('Pack Size Preference for Mainstream Young Families')
+plt.xlabel('Pack Size (g)')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Filter for Premium Young Families
+premium_youngfam = merged_data[
+    (merged_data['PREMIUM_CUSTOMER'] == 'PREMIUM') &
+    (merged_data['LIFESTAGE'] == 'YOUNG FAMILIES')
+]
+
+# Brand preference
+brand_preference = premium_youngfam['BRAND_NAME'].value_counts()
+print("Brand Preference for Premium Young Families:")
+print(brand_preference)
+
+print("Brand Preference for Premium Young Families:")
+print(brand_preference)
+
+# Visualization
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x=brand_preference.index, y=brand_preference.values)
+plt.title('Brand Preference for Premium Young Families')
+plt.xlabel('Brand')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Pack size preference analysis
+pack_size_preference = premium_youngfam['PACK_SIZE'].value_counts()
+print("Pack Size Preference for Premium Young Families:")
+print(pack_size_preference)
+
+# Visualize pack size preferences
+plt.figure(figsize=(10, 6))
+sns.barplot(x=pack_size_preference.index, y=pack_size_preference.values)
+plt.title('Pack Size Preference for Premium Young Families')
+plt.xlabel('Pack Size (g)')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Filter for Budget Retirees
+budget_retirees = merged_data[
+    (merged_data['PREMIUM_CUSTOMER'] == 'BUDGET') &
+    (merged_data['LIFESTAGE'] == 'RETIREES')
+]
+
+# Brand preference
+brand_preference = budget_retirees['BRAND_NAME'].value_counts()
+print("Brand Preference for Budget Retirees:")
+print(brand_preference)
+
+print("Brand Preference for Budget Retirees:")
+print(brand_preference)
+
+# Visualization
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x=brand_preference.index, y=brand_preference.values)
+plt.title('Brand Preference for Budget Retirees')
+plt.xlabel('Brand')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Pack size preference analysis
+pack_size_preference = budget_retirees['PACK_SIZE'].value_counts()
+print("Pack Size Preference for Budget Retirees:")
+print(pack_size_preference)
+
+# Visualize pack size preferences
+plt.figure(figsize=(10, 6))
+sns.barplot(x=pack_size_preference.index, y=pack_size_preference.values)
+plt.title('Pack Size Preference for Budget Retirees')
+plt.xlabel('Pack Size (g)')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Filter for Mainstream Retirees
+mainstream_retirees = merged_data[
+    (merged_data['PREMIUM_CUSTOMER'] == 'MAINSTREAM') &
+    (merged_data['LIFESTAGE'] == 'RETIREES')
+]
+
+# Brand preference
+brand_preference = mainstream_retirees['BRAND_NAME'].value_counts()
+print("Brand Preference for Mainstream Retirees:")
+print(brand_preference)
+
+print("Brand Preference for Mainstream Retirees:")
+print(brand_preference)
+
+# Visualization
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x=brand_preference.index, y=brand_preference.values)
+plt.title('Brand Preference for Mainstream Retirees')
+plt.xlabel('Brand')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Pack size preference analysis
+pack_size_preference = mainstream_retirees['PACK_SIZE'].value_counts()
+print("Pack Size Preference for Mainstream Retirees:")
+print(pack_size_preference)
+
+# Visualize pack size preferences
+plt.figure(figsize=(10, 6))
+sns.barplot(x=pack_size_preference.index, y=pack_size_preference.values)
+plt.title('Pack Size Preference for Mainstream Retirees')
+plt.xlabel('Pack Size (g)')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Filter for Premium Retirees
+premium_retirees = merged_data[
+    (merged_data['PREMIUM_CUSTOMER'] == 'PREMIUM') &
+    (merged_data['LIFESTAGE'] == 'RETIREES')
+]
+
+# Brand preference
+brand_preference = premium_retirees['BRAND_NAME'].value_counts()
+print("Brand Preference for Premium Retirees:")
+print(brand_preference)
+
+print("Brand Preference for Premium Retirees:")
+print(brand_preference)
+
+# Visualization
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x=brand_preference.index, y=brand_preference.values)
+plt.title('Brand Preference for Premium Retirees')
+plt.xlabel('Brand')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Pack size preference analysis
+pack_size_preference = premium_retirees['PACK_SIZE'].value_counts()
+print("Pack Size Preference for Premium Retirees:")
+print(pack_size_preference)
+
+# Visualize pack size preferences
+plt.figure(figsize=(10, 6))
+sns.barplot(x=pack_size_preference.index, y=pack_size_preference.values)
+plt.title('Pack Size Preference for Premium Retirees')
+plt.xlabel('Pack Size (g)')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Filter for Budget Older Singles/Couples
+budget_older = merged_data[
+    (merged_data['PREMIUM_CUSTOMER'] == 'BUDGET') &
+    (merged_data['LIFESTAGE'] == 'OLDER SINGLES/COUPLES')
+]
+
+# Brand preference
+brand_preference = budget_older['BRAND_NAME'].value_counts()
+print("Brand Preference for Older Singles/Couples:")
+print(brand_preference)
+
+print("Brand Preference for Older Singles/Couples:")
+print(brand_preference)
+
+# Visualization
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x=brand_preference.index, y=brand_preference.values)
+plt.title('Brand Preference for Budget Older Singles/Couples')
+plt.xlabel('Brand')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Pack size preference analysis
+pack_size_preference = budget_older['PACK_SIZE'].value_counts()
+print("Pack Size Preference for Budget Older Singles/Couples:")
+print(pack_size_preference)
+
+# Visualize pack size preferences
+plt.figure(figsize=(10, 6))
+sns.barplot(x=pack_size_preference.index, y=pack_size_preference.values)
+plt.title('Pack Size Preference for Budget Older Singles/Couples')
+plt.xlabel('Pack Size (g)')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Filter for Mainstream Older Singles/Couples
+mainstream_older = merged_data[
+    (merged_data['PREMIUM_CUSTOMER'] == 'MAINSTREAM') &
+    (merged_data['LIFESTAGE'] == 'OLDER SINGLES/COUPLES')
+]
+
+# Brand preference
+brand_preference = mainstream_older['BRAND_NAME'].value_counts()
+print("Brand Preference for Older Singles/Couples:")
+print(brand_preference)
+
+print("Brand Preference for Older Singles/Couples:")
+print(brand_preference)
+
+# Visualization
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x=brand_preference.index, y=brand_preference.values)
+plt.title('Brand Preference for Mainstream Older Singles/Couples')
+plt.xlabel('Brand')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+# Pack size preference analysis
+pack_size_preference = mainstream_older['PACK_SIZE'].value_counts()
+print("Pack Size Preference for Mainstream Older Singles/Couples:")
+print(pack_size_preference)
+
+# Visualize pack size preferences
+plt.figure(figsize=(10, 6))
+sns.barplot(x=pack_size_preference.index, y=pack_size_preference.values)
+plt.title('Pack Size Preference for Mainstream Older Singles/Couples')
+plt.xlabel('Pack Size (g)')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Filter for Premium Older Singles/Couples
+premium_older = merged_data[
+    (merged_data['PREMIUM_CUSTOMER'] == 'PREMIUM') &
+    (merged_data['LIFESTAGE'] == 'OLDER SINGLES/COUPLES')
+]
+
+# Brand preference
+brand_preference = premium_older['BRAND_NAME'].value_counts()
+print("Brand Preference for Older Singles/Couples:")
+print(brand_preference)
+
+print("Brand Preference for Older Singles/Couples:")
+print(brand_preference)
+
+# Visualization
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x=brand_preference.index, y=brand_preference.values)
+plt.title('Brand Preference for Premium Older Singles/Couples')
+plt.xlabel('Brand')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Pack size preference analysis
+pack_size_preference = premium_older['PACK_SIZE'].value_counts()
+print("Pack Size Preference for Premium Older Singles/Couples:")
+print(pack_size_preference)
+
+# Visualize pack size preferences
+plt.figure(figsize=(10, 6))
+sns.barplot(x=pack_size_preference.index, y=pack_size_preference.values)
+plt.title('Pack Size Preference for Premium Older Singles/Couples')
+plt.xlabel('Pack Size (g)')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Filter for Budget Older Families
+budget_olderfam = merged_data[
+    (merged_data['PREMIUM_CUSTOMER'] == 'BUDGET') &
+    (merged_data['LIFESTAGE'] == 'OLDER FAMILIES')
+]
+
+# Brand preference
+brand_preference = budget_olderfam['BRAND_NAME'].value_counts()
+print("Brand Preference for Budget Older Families:")
+print(brand_preference)
+
+print("Brand Preference for Budget Older Families:")
+print(brand_preference)
+
+# Visualization
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x=brand_preference.index, y=brand_preference.values)
+plt.title('Brand Preference for Budget Older Families')
+plt.xlabel('Brand')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Pack size preference analysis
+pack_size_preference = budget_olderfam['PACK_SIZE'].value_counts()
+print("Pack Size Preference for Budget Older Families:")
+print(pack_size_preference)
+
+# Visualize pack size preferences
+plt.figure(figsize=(10, 6))
+sns.barplot(x=pack_size_preference.index, y=pack_size_preference.values)
+plt.title('Pack Size Preference for Budget Older Families')
+plt.xlabel('Pack Size (g)')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Filter for Mainstream Older Families
+mainstream_olderfam = merged_data[
+    (merged_data['PREMIUM_CUSTOMER'] == 'MAINSTREAM') &
+    (merged_data['LIFESTAGE'] == 'OLDER FAMILIES')
+]
+
+# Brand preference
+brand_preference = mainstream_olderfam['BRAND_NAME'].value_counts()
+print("Brand Preference for Mainstream Older Families:")
+print(brand_preference)
+
+print("Brand Preference for Mainstream Older Families:")
+print(brand_preference)
+
+# Visualization
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x=brand_preference.index, y=brand_preference.values)
+plt.title('Brand Preference for Mainstream Older Families')
+plt.xlabel('Brand')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Pack size preference analysis
+pack_size_preference = mainstream_olderfam['PACK_SIZE'].value_counts()
+print("Pack Size Preference for Mainstream Older Families:")
+print(pack_size_preference)
+
+# Visualize pack size preferences
+plt.figure(figsize=(10, 6))
+sns.barplot(x=pack_size_preference.index, y=pack_size_preference.values)
+plt.title('Pack Size Preference for Mainstream Older Families')
+plt.xlabel('Pack Size (g)')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Filter for Premium Older Families
+premium_olderfam = merged_data[
+    (merged_data['PREMIUM_CUSTOMER'] == 'PREMIUM') &
+    (merged_data['LIFESTAGE'] == 'OLDER FAMILIES')
+]
+
+# Brand preference
+brand_preference = premium_olderfam['BRAND_NAME'].value_counts()
+print("Brand Preference for Premium Older Families:")
+print(brand_preference)
+
+print("Brand Preference for Premium Older Families:")
+print(brand_preference)
+
+# Visualization
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x=brand_preference.index, y=brand_preference.values)
+plt.title('Brand Preference for Premium Older Families')
+plt.xlabel('Brand')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Pack size preference analysis
+pack_size_preference = premium_olderfam['PACK_SIZE'].value_counts()
+print("Pack Size Preference for Premium Older Families:")
+print(pack_size_preference)
+
+# Visualize pack size preferences
+plt.figure(figsize=(10, 6))
+sns.barplot(x=pack_size_preference.index, y=pack_size_preference.values)
+plt.title('Pack Size Preference for Premium Older Families')
+plt.xlabel('Pack Size (g)')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Filter for Budget New Families
+budget_newfam = merged_data[
+    (merged_data['PREMIUM_CUSTOMER'] == 'BUDGET') &
+    (merged_data['LIFESTAGE'] == 'NEW FAMILIES')
+]
+
+# Brand preference
+brand_preference = budget_newfam['BRAND_NAME'].value_counts()
+print("Brand Preference for Budget New Families:")
+print(brand_preference)
+
+print("Brand Preference for Budget New Families:")
+print(brand_preference)
+
+# Visualization
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x=brand_preference.index, y=brand_preference.values)
+plt.title('Brand Preference for Budget New Families')
+plt.xlabel('Brand')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Pack size preference analysis
+pack_size_preference = budget_newfam['PACK_SIZE'].value_counts()
+print("Pack Size Preference for Budget New Families:")
+print(pack_size_preference)
+
+# Visualize pack size preferences
+plt.figure(figsize=(10, 6))
+sns.barplot(x=pack_size_preference.index, y=pack_size_preference.values)
+plt.title('Pack Size Preference for Budget New Families')
+plt.xlabel('Pack Size (g)')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Filter for Mainstream New Families
+mainstream_newfam = merged_data[
+    (merged_data['PREMIUM_CUSTOMER'] == 'MAINSTREAM') &
+    (merged_data['LIFESTAGE'] == 'NEW FAMILIES')
+]
+
+# Brand preference
+brand_preference = mainstream_newfam['BRAND_NAME'].value_counts()
+print("Brand Preference for Mainstream New Families:")
+print(brand_preference)
+
+print("Brand Preference for Mainstream New Families:")
+print(brand_preference)
+
+# Visualization
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x=brand_preference.index, y=brand_preference.values)
+plt.title('Brand Preference for Mainstream New Families')
+plt.xlabel('Brand')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()# Filter for Mainstream New Families
+mainstream_newfam = merged_data[
+    (merged_data['PREMIUM_CUSTOMER'] == 'MAINSTREAM') &
+    (merged_data['LIFESTAGE'] == 'NEW FAMILIES')
+]
+
+# Pack size preference analysis
+pack_size_preference = mainstream_newfam['PACK_SIZE'].value_counts()
+print("Pack Size Preference for Mainstream New Families:")
+print(pack_size_preference)
+
+# Visualize pack size preferences
+plt.figure(figsize=(10, 6))
+sns.barplot(x=pack_size_preference.index, y=pack_size_preference.values)
+plt.title('Pack Size Preference for Mainstream New Families')
+plt.xlabel('Pack Size (g)')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Filter for premium New Families
+premium_newfam = merged_data[
+    (merged_data['PREMIUM_CUSTOMER'] == 'PREMIUM') &
+    (merged_data['LIFESTAGE'] == 'NEW FAMILIES')
+]
+
+# Brand preference
+brand_preference = premium_newfam['BRAND_NAME'].value_counts()
+print("Brand Preference for Premium New Families:")
+print(brand_preference)
+
+print("Brand Preference for Premium New Families:")
+print(brand_preference)
+
+# Visualization
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x=brand_preference.index, y=brand_preference.values)
+plt.title('Brand Preference for Premium New Families')
+plt.xlabel('Brand')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Pack size preference analysis
+pack_size_preference = premium_newfam['PACK_SIZE'].value_counts()
+print("Pack Size Preference for Premium New Families:")
+print(pack_size_preference)
+
+# Visualize pack size preferences
+plt.figure(figsize=(10, 6))
+sns.barplot(x=pack_size_preference.index, y=pack_size_preference.values)
+plt.title('Pack Size Preference for Premium New Families')
+plt.xlabel('Pack Size (g)')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Filter for Budget Midage Singles/Couples
+budget_midage = merged_data[
+    (merged_data['PREMIUM_CUSTOMER'] == 'BUDGET') &
+    (merged_data['LIFESTAGE'] == 'MIDAGE SINGLES/COUPLES')
+]
+
+# Brand preference
+brand_preference = budget_midage['BRAND_NAME'].value_counts()
+print("Brand Preference for Midage Singles/Couples:")
+print(brand_preference)
+
+print("Brand Preference for Midage Singles/Couples:")
+print(brand_preference)
+
+# Visualization
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x=brand_preference.index, y=brand_preference.values)
+plt.title('Brand Preference for Budget Midage Singles/Couples')
+plt.xlabel('Brand')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Pack size preference analysis
+pack_size_preference = budget_midage['PACK_SIZE'].value_counts()
+print("Pack Size Preference for Budget Midage Singles/Couples:")
+print(pack_size_preference)
+
+# Visualize pack size preferences
+plt.figure(figsize=(10, 6))
+sns.barplot(x=pack_size_preference.index, y=pack_size_preference.values)
+plt.title('Pack Size Preference for Budget Midage Singles/Couples')
+plt.xlabel('Pack Size (g)')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Filter for Mainstream Midage Singles/Couples
+mainstream_midage = merged_data[
+    (merged_data['PREMIUM_CUSTOMER'] == 'MAINSTREAM') &
+    (merged_data['LIFESTAGE'] == 'MIDAGE SINGLES/COUPLES')
+]
+
+# Brand preference
+brand_preference = mainstream_midage['BRAND_NAME'].value_counts()
+print("Brand Preference for Budget Midage Singles/Couples:")
+print(brand_preference)
+
+print("Brand Preference for Budget Midage Singles/Couples:")
+print(brand_preference)
+
+# Visualization
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x=brand_preference.index, y=brand_preference.values)
+plt.title('Brand Preference for Mainstream Midage Singles/Couples')
+plt.xlabel('Brand')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Pack size preference analysis
+pack_size_preference = mainstream_midage['PACK_SIZE'].value_counts()
+print("Pack Size Preference for Mainstream Midage Singles/Couples:")
+print(pack_size_preference)
+
+# Visualize pack size preferences
+plt.figure(figsize=(10, 6))
+sns.barplot(x=pack_size_preference.index, y=pack_size_preference.values)
+plt.title('Pack Size Preference for Mainstream Midage Singles/Couples')
+plt.xlabel('Pack Size (g)')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Filter for Premium Midage Singles/Couples
+premium_midage = merged_data[
+    (merged_data['PREMIUM_CUSTOMER'] == 'PREMIUM') &
+    (merged_data['LIFESTAGE'] == 'MIDAGE SINGLES/COUPLES')
+]
+
+# Brand preference
+brand_preference = premium_midage['BRAND_NAME'].value_counts()
+print("Brand Preference for Premium Midage Singles/Couples:")
+print(brand_preference)
+
+print("Brand Preference for Premium Midage Singles/Couples:")
+print(brand_preference)
+
+# Visualization
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x=brand_preference.index, y=brand_preference.values)
+plt.title('Brand Preference for Premium Midage Singles/Couples')
+plt.xlabel('Brand')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.show()
+
+# Pack size preference analysis
+pack_size_preference = premium_midage['PACK_SIZE'].value_counts()
+print("Pack Size Preference for Premium Midage Singles/Couples:")
+print(pack_size_preference)
+
+# Visualize pack size preferences
+plt.figure(figsize=(10, 6))
+sns.barplot(x=pack_size_preference.index, y=pack_size_preference.values)
+plt.title('Pack Size Preference for Premium Midage Singles/Couples')
 plt.xlabel('Pack Size (g)')
 plt.ylabel('Count')
 plt.xticks(rotation=45)
