@@ -998,6 +998,16 @@ plt.ylabel('Count')
 plt.xticks(rotation=45)
 plt.show()
 
+# Calculate averages for pack size and BRAND_NAME preference
+overall_avg_pack_size = merged_data['PACK_SIZE'].mean()
+overall_avg_brand_pref = merged_data['BRAND_NAME'].value_counts(normalize=True) * 100
+
+avg_pack_by_premium = merged_data.groupby('PREMIUM_CUSTOMER')['PACK_SIZE'].mean()
+avg_pack_by_lifestage = merged_data.groupby('LIFESTAGE')['PACK_SIZE'].mean()
+
+brand_pref_by_premium = merged_data.groupby('PREMIUM_CUSTOMER')['BRAND_NAME'].value_counts(normalize=True).unstack() * 100
+brand_pref_by_lifestage = merged_data.groupby('LIFESTAGE')['BRAND_NAME'].value_counts(normalize=True).unstack() * 100
+
 # Overall Pack Size Distribution
 plt.figure(figsize=(8, 6))
 sns.histplot(merged_data['PACK_SIZE'], bins=20, kde=True, color='blue')
