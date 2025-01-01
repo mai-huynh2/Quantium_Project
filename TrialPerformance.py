@@ -3,74 +3,217 @@ import numpy as np
 from scipy.stats import ttest_ind
 import matplotlib.pyplot as plt
 
-# Load dataset
-file_path = "QVI_data.csv"
-data = pd.read_csv(file_path)
+# Load Data
+file_path = "QVI_data.csv"  # Replace with your file path
+data = pd.read_csv(r"/content/QVI_data.csv")
 
-# Add YEARMONTH column
+# Add YEARMONTH Column
 data['DATE'] = pd.to_datetime(data['DATE'])
 data['YEARMONTH'] = data['DATE'].dt.year * 100 + data['DATE'].dt.month
 
-# Calculate measures over time
+# Preprocess Metrics
 metrics = data.groupby(['STORE_NBR', 'YEARMONTH']).agg(
     totSales=('TOT_SALES', 'sum'),
     nCustomers=('LYLTY_CARD_NBR', 'nunique'),
-    nTxnPerCust=('TXN_ID', lambda x: x.nunique() / x.nunique()),
-    avgPricePerUnit=('TOT_SALES', lambda x: x.sum() / x.count())
+    nTxnPerCust=('TOT_SALES', 'count'),
+    avgPricePerUnit=('TOT_SALES', 'mean')
 ).reset_index()
 
-# Filter pre-trial period and stores with full observation
-pre_trial = metrics[metrics['YEARMONTH'] < 201902]
-stores_with_full_obs = pre_trial.groupby('STORE_NBR').filter(lambda x: len(x) == 12)['STORE_NBR'].unique()
-
-# Function to calculate correlation
-def calculate_correlation(input_table, metric_col, store_comparison):
-    results = []
+def calculate_correlation(input_table, metric_col, trial_store):
+    correlation_table = []
+    trial_data = input_table[input_table['STORE_NBR'] == trial_store][['YEARMONTH', metric_col]]
     for store in input_table['STORE_NBR'].unique():
-        if store != store_comparison:
-            corr = input_table[input_table['STORE_NBR'] == store_comparison][metric_col].corr(
-                input_table[input_table['STORE_NBR'] == store][metric_col])
-            results.append({'Store1': store_comparison, 'Store2': store, 'corr_measure': corr})
-    return pd.DataFrame(results)
+        if store != trial_store:
+            control_data = input_table[input_table['STORE_NBR'] == store][['YEARMONTH', metric_col]]
+            merged = pd.merge(trial_data, control_data, on='YEARMONTH', suffixes=('_trial', '_control'))
+            if not merged.empty:
+                corr = merged[f'{metric_col}_trial'].corr(merged[f'{metric_col}_control'])
+                correlation_table.append({'Store': store, 'Correlation': corr})
+    return pd.DataFrame(correlation_table)
 
-# Function to calculate magnitude distance
-def calculate_magnitude_distance(input_table, metric_col, store_comparison):
-    results = []
+def calculate_magnitude_distance(input_table, metric_col, trial_store):
+    magnitude_table = []
+    trial_mean = input_table[input_table['STORE_NBR'] == trial_store][metric_col].mean()
     for store in input_table['STORE_NBR'].unique():
-        if store != store_comparison:
-            trial_data = input_table[input_table['STORE_NBR'] == store_comparison][metric_col]
-            control_data = input_table[input_table['STORE_NBR'] == store][metric_col]
-            magnitude = abs(trial_data.mean() - control_data.mean())
-            results.append({'Store1': store_comparison, 'Store2': store, 'measure': magnitude})
-    return pd.DataFrame(results)
+        if store != trial_store:
+            control_mean = input_table[input_table['STORE_NBR'] == store][metric_col].mean()
+            magnitude = abs(trial_mean - control_mean)
+            magnitude_table.append({'Store': store, 'Magnitude': magnitude})
+    return pd.DataFrame(magnitude_table)
 
-# Select control store for trial store 77
 trial_store = 77
-corr_nSales = calculate_correlation(pre_trial, 'totSales', trial_store)
-magnitude_nSales = calculate_magnitude_distance(pre_trial, 'totSales', trial_store)
 
-# Combine scores
-corr_weight = 0.5
-scores = pd.merge(corr_nSales, magnitude_nSales, on=['Store1', 'Store2'])
-scores['final_score'] = corr_weight * scores['corr_measure'] + (1 - corr_weight) * scores['measure']
-control_store = scores.sort_values('final_score', ascending=False).iloc[0]['Store2']
+# Correlation for Sales and Customers
+corr_sales = calculate_correlation(metrics, 'totSales', trial_store)
+corr_customers = calculate_correlation(metrics, 'nCustomers', trial_store)
 
-# Visualize results
-trial_data = metrics[metrics['STORE_NBR'] == trial_store]
-control_data = metrics[metrics['STORE_NBR'] == control_store]
+# Magnitude Distance for Sales and Customers
+mag_sales = calculate_magnitude_distance(metrics, 'totSales', trial_store)
+mag_customers = calculate_magnitude_distance(metrics, 'nCustomers', trial_store)
 
-plt.figure(figsize=(10, 6))
-plt.plot(trial_data['YEARMONTH'], trial_data['totSales'], label='Trial Store')
-plt.plot(control_data['YEARMONTH'], control_data['totSales'], label='Control Store')
-plt.legend()
-plt.title('Total Sales Comparison')
+# Normalize Magnitude
+for mag in [mag_sales, mag_customers]:
+    min_val, max_val = mag['Magnitude'].min(), mag['Magnitude'].max()
+    mag['Normalized Magnitude'] = 1 - (mag['Magnitude'] - min_val) / (max_val - min_val)
+
+# Combine Scores for Sales
+combined_sales = pd.merge(corr_sales, mag_sales, on='Store')
+combined_sales['Score'] = 0.5 * combined_sales['Correlation'] + 0.5 * combined_sales['Normalized Magnitude']
+
+# Combine Scores for Customers
+combined_customers = pd.merge(corr_customers, mag_customers, on='Store')
+combined_customers['Score'] = 0.5 * combined_customers['Correlation'] + 0.5 * combined_customers['Normalized Magnitude']
+
+# Final Control Store Selection
+combined_scores = pd.merge(combined_sales, combined_customers, on='Store', suffixes=('_sales', '_customers'))
+combined_scores['FinalScore'] = (combined_scores['Score_sales'] + combined_scores['Score_customers']) / 2
+
+control_store = combined_scores.sort_values('FinalScore', ascending=False).iloc[0]['Store']
+print(f"Selected Control Store for Trial Store {trial_store}: {control_store}")
+
+# Visualize Sales Trends
+trial_data_sales = metrics[metrics['STORE_NBR'] == trial_store]
+control_data_sales = metrics[metrics['STORE_NBR'] == control_store]
+
+plt.figure(figsize=(12, 6))
+plt.plot(trial_data_sales['YEARMONTH'], trial_data_sales['totSales'], label=f'Trial Store {trial_store}', marker='o')
+plt.plot(control_data_sales['YEARMONTH'], control_data_sales['totSales'], label=f'Control Store {control_store}', marker='o')
+plt.axvline(x=201902, color='red', linestyle='--', label='Trial Start')
+plt.title('Total Sales: Trial Store vs Control Store')
 plt.xlabel('Year-Month')
 plt.ylabel('Total Sales')
+plt.legend()
+plt.grid()
 plt.show()
 
-# Statistical analysis
-pre_trial_trial = pre_trial[pre_trial['STORE_NBR'] == trial_store]['totSales']
-pre_trial_control = pre_trial[pre_trial['STORE_NBR'] == control_store]['totSales']
+# Scale Control Sales
+scaling_factor = trial_data_sales[trial_data_sales['YEARMONTH'] < 201902]['totSales'].sum() / \
+                 control_data_sales[control_data_sales['YEARMONTH'] < 201902]['totSales'].sum()
 
-t_stat, p_val = ttest_ind(pre_trial_trial, pre_trial_control)
-print(f"T-Test Results: t-statistic={t_stat}, p-value={p_val}")
+# Create a new column safely using .loc
+control_data_sales.loc[:, 'ScaledSales'] = control_data_sales['totSales'] * scaling_factor
+
+# Calculate Percentage Difference
+trial_period_sales = trial_data_sales[trial_data_sales['YEARMONTH'] >= 201902]['totSales']
+control_period_sales = control_data_sales[control_data_sales['YEARMONTH'] >= 201902]['ScaledSales']
+percentage_diff_sales = abs(trial_period_sales.values - control_period_sales.values) / control_period_sales.values * 100
+
+print(f"Percentage Difference in Sales: {percentage_diff_sales}")
+
+trial_store = 86
+
+# Correlation for Sales and Customers
+corr_sales = calculate_correlation(metrics, 'totSales', trial_store)
+corr_customers = calculate_correlation(metrics, 'nCustomers', trial_store)
+
+# Magnitude Distance for Sales and Customers
+mag_sales = calculate_magnitude_distance(metrics, 'totSales', trial_store)
+mag_customers = calculate_magnitude_distance(metrics, 'nCustomers', trial_store)
+
+# Normalize Magnitude
+for mag in [mag_sales, mag_customers]:
+    min_val, max_val = mag['Magnitude'].min(), mag['Magnitude'].max()
+    mag['Normalized Magnitude'] = 1 - (mag['Magnitude'] - min_val) / (max_val - min_val)
+
+# Combine Scores for Sales
+combined_sales = pd.merge(corr_sales, mag_sales, on='Store')
+combined_sales['Score'] = 0.5 * combined_sales['Correlation'] + 0.5 * combined_sales['Normalized Magnitude']
+
+# Combine Scores for Customers
+combined_customers = pd.merge(corr_customers, mag_customers, on='Store')
+combined_customers['Score'] = 0.5 * combined_customers['Correlation'] + 0.5 * combined_customers['Normalized Magnitude']
+
+# Final Control Store Selection
+combined_scores = pd.merge(combined_sales, combined_customers, on='Store', suffixes=('_sales', '_customers'))
+combined_scores['FinalScore'] = (combined_scores['Score_sales'] + combined_scores['Score_customers']) / 2
+
+control_store = combined_scores.sort_values('FinalScore', ascending=False).iloc[0]['Store']
+print(f"Selected Control Store for Trial Store {trial_store}: {control_store}")
+
+# Visualize Sales Trends
+trial_data_sales = metrics[metrics['STORE_NBR'] == trial_store]
+control_data_sales = metrics[metrics['STORE_NBR'] == control_store]
+
+plt.figure(figsize=(12, 6))
+plt.plot(trial_data_sales['YEARMONTH'], trial_data_sales['totSales'], label=f'Trial Store {trial_store}', marker='o')
+plt.plot(control_data_sales['YEARMONTH'], control_data_sales['totSales'], label=f'Control Store {control_store}', marker='o')
+plt.axvline(x=201902, color='red', linestyle='--', label='Trial Start')
+plt.title('Total Sales: Trial Store vs Control Store')
+plt.xlabel('Year-Month')
+plt.ylabel('Total Sales')
+plt.legend()
+plt.grid()
+plt.show()
+
+# Scale Control Sales
+scaling_factor = trial_data_sales[trial_data_sales['YEARMONTH'] < 201902]['totSales'].sum() / \
+                 control_data_sales[control_data_sales['YEARMONTH'] < 201902]['totSales'].sum()
+
+# Create a new column safely using .loc
+control_data_sales.loc[:, 'ScaledSales'] = control_data_sales['totSales'] * scaling_factor
+
+# Calculate Percentage Difference
+trial_period_sales = trial_data_sales[trial_data_sales['YEARMONTH'] >= 201902]['totSales']
+control_period_sales = control_data_sales[control_data_sales['YEARMONTH'] >= 201902]['ScaledSales']
+percentage_diff_sales = abs(trial_period_sales.values - control_period_sales.values) / control_period_sales.values * 100
+
+print(f"Percentage Difference in Sales: {percentage_diff_sales}")
+
+trial_store = 88
+
+# Correlation for Sales and Customers
+corr_sales = calculate_correlation(metrics, 'totSales', trial_store)
+corr_customers = calculate_correlation(metrics, 'nCustomers', trial_store)
+
+# Magnitude Distance for Sales and Customers
+mag_sales = calculate_magnitude_distance(metrics, 'totSales', trial_store)
+mag_customers = calculate_magnitude_distance(metrics, 'nCustomers', trial_store)
+
+# Normalize Magnitude
+for mag in [mag_sales, mag_customers]:
+    min_val, max_val = mag['Magnitude'].min(), mag['Magnitude'].max()
+    mag['Normalized Magnitude'] = 1 - (mag['Magnitude'] - min_val) / (max_val - min_val)
+
+# Combine Scores for Sales
+combined_sales = pd.merge(corr_sales, mag_sales, on='Store')
+combined_sales['Score'] = 0.5 * combined_sales['Correlation'] + 0.5 * combined_sales['Normalized Magnitude']
+
+# Combine Scores for Customers
+combined_customers = pd.merge(corr_customers, mag_customers, on='Store')
+combined_customers['Score'] = 0.5 * combined_customers['Correlation'] + 0.5 * combined_customers['Normalized Magnitude']
+
+# Final Control Store Selection
+combined_scores = pd.merge(combined_sales, combined_customers, on='Store', suffixes=('_sales', '_customers'))
+combined_scores['FinalScore'] = (combined_scores['Score_sales'] + combined_scores['Score_customers']) / 2
+
+control_store = combined_scores.sort_values('FinalScore', ascending=False).iloc[0]['Store']
+print(f"Selected Control Store for Trial Store {trial_store}: {control_store}")
+
+# Visualize Sales Trends
+trial_data_sales = metrics[metrics['STORE_NBR'] == trial_store]
+control_data_sales = metrics[metrics['STORE_NBR'] == control_store]
+
+plt.figure(figsize=(12, 6))
+plt.plot(trial_data_sales['YEARMONTH'], trial_data_sales['totSales'], label=f'Trial Store {trial_store}', marker='o')
+plt.plot(control_data_sales['YEARMONTH'], control_data_sales['totSales'], label=f'Control Store {control_store}', marker='o')
+plt.axvline(x=201902, color='red', linestyle='--', label='Trial Start')
+plt.title('Total Sales: Trial Store vs Control Store')
+plt.xlabel('Year-Month')
+plt.ylabel('Total Sales')
+plt.legend()
+plt.grid()
+plt.show()
+
+# Scale Control Sales
+scaling_factor = trial_data_sales[trial_data_sales['YEARMONTH'] < 201902]['totSales'].sum() / \
+                 control_data_sales[control_data_sales['YEARMONTH'] < 201902]['totSales'].sum()
+
+# Create a new column safely using .loc
+control_data_sales.loc[:, 'ScaledSales'] = control_data_sales['totSales'] * scaling_factor
+
+# Calculate Percentage Difference
+trial_period_sales = trial_data_sales[trial_data_sales['YEARMONTH'] >= 201902]['totSales']
+control_period_sales = control_data_sales[control_data_sales['YEARMONTH'] >= 201902]['ScaledSales']
+percentage_diff_sales = abs(trial_period_sales.values - control_period_sales.values) / control_period_sales.values * 100
+
+print(f"Percentage Difference in Sales: {percentage_diff_sales}")
