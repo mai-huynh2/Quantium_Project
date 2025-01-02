@@ -86,6 +86,9 @@ plt.legend()
 plt.grid()
 plt.show()
 
+print(trial_data_sales)
+print(control_data_sales)
+
 # Scale Control Sales
 scaling_factor = trial_data_sales[trial_data_sales['YEARMONTH'] < 201902]['totSales'].sum() / \
                  control_data_sales[control_data_sales['YEARMONTH'] < 201902]['totSales'].sum()
@@ -145,6 +148,9 @@ plt.legend()
 plt.grid()
 plt.show()
 
+print(trial_data_sales)
+print(control_data_sales)
+
 # Scale Control Sales
 scaling_factor = trial_data_sales[trial_data_sales['YEARMONTH'] < 201902]['totSales'].sum() / \
                  control_data_sales[control_data_sales['YEARMONTH'] < 201902]['totSales'].sum()
@@ -203,6 +209,9 @@ plt.ylabel('Total Sales')
 plt.legend()
 plt.grid()
 plt.show()
+
+print(trial_data_sales)
+print(control_data_sales)
 
 # Scale Control Sales
 scaling_factor = trial_data_sales[trial_data_sales['YEARMONTH'] < 201902]['totSales'].sum() / \
