@@ -104,7 +104,7 @@ sales_by_segment = merged_data.groupby(['PREMIUM_CUSTOMER', 'LIFESTAGE'])['TOTAL
 # Visualization
 plt.figure(figsize=(12,6))
 sns.barplot(data=sales_by_segment, x='LIFESTAGE', y='TOTAL_SALES', hue='PREMIUM_CUSTOMER')
-plt.title('Total Sales by Lifestage and Premium Status')
+plt.title('Total Sales by Lifestage and Affluence')
 plt.xticks(rotation=45)
 plt.legend(title= 'Premium Status')
 plt.show()
