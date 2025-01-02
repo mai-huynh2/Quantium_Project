@@ -998,7 +998,7 @@ plt.ylabel('Count')
 plt.xticks(rotation=45)
 plt.show()
 
-# Calculate averages for pack size and BRAND_NAME preference
+# Calculate averages for pack size and brand preference
 overall_avg_pack_size = merged_data['PACK_SIZE'].mean()
 overall_avg_brand_pref = merged_data['BRAND_NAME'].value_counts(normalize=True) * 100
 
@@ -1018,10 +1018,10 @@ plt.show()
 
 print(overall_avg_pack_size)
 
-# Average Pack Size by Premium Status
+# Average Pack Size by Affluence
 plt.figure(figsize=(8, 6))
 avg_pack_by_premium.plot(kind='bar', color='green')
-plt.title('Average Pack Size by Premium Status')
+plt.title('Average Pack Size by Affluence')
 plt.xlabel('Premium Customer Status')
 plt.ylabel('Average Pack Size (grams)')
 plt.show()
@@ -1038,10 +1038,10 @@ plt.show()
 
 print(avg_pack_by_lifestage)
 
-# Brand Preference by Premium Status
+# Brand Preference by Affluence
 plt.figure(figsize=(10, 6))
 brand_pref_by_premium.T.plot(kind='bar', stacked=True, figsize=(10, 6), colormap='tab20')
-plt.title('Brand Preference by Premium Status')
+plt.title('Brand Preference by Affluence')
 plt.xlabel('BRAND_NAME')
 plt.ylabel('Percentage')
 plt.legend(title='Premium Status')
